@@ -4,16 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,38 +17,49 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.model.SampleTickets
 import com.example.model.TicketInfo
 import com.example.ui.components.ChangeBoardingDialog
 import com.example.ui.components.EditTicketBottomSheet
-import com.example.ui.components.PassengerSection
-import com.example.ui.components.RailOneHeader
+import com.example.ui.components.LanguageSelectionDialog
+import com.example.ui.components.NotificationsBottomSheet
+import com.example.ui.components.OfferingDetailDialog
+import com.example.ui.components.OfferingItem
+import com.example.ui.components.PnrStatusQuickDialog
+import com.example.ui.components.RailOneBottomNavBar
+import com.example.ui.components.RailOneNavTab
 import com.example.ui.components.RefundRulesBottomSheet
 import com.example.ui.components.ReturnJourneyBottomSheet
 import com.example.ui.components.ShareBottomSheet
-import com.example.ui.components.TicketCard
-import com.example.ui.components.TicketDetailsExtras
 import com.example.ui.components.TicketQrDialog
+import com.example.ui.components.TriviaItem
 import com.example.ui.components.UtsConnectingDialog
 import com.example.ui.theme.RailBackground
-import com.example.ui.theme.RailBluePrimary
 import kotlinx.coroutines.launch
 
 @Composable
 fun RailOneScreen(
   modifier: Modifier = Modifier,
 ) {
+  // Navigation State
+  var currentTab by remember { mutableStateOf(RailOneNavTab.HOME) }
+
+  // Ticket State (Roshan / D VARDHAN - AP Express)
   var ticket by remember { mutableStateOf(SampleTickets.apExpress) }
+  var selectedLanguage by remember { mutableStateOf("English") }
+
   val snackbarHostState = remember { SnackbarHostState() }
   val scope = rememberCoroutineScope()
   val clipboardManager = LocalClipboardManager.current
 
-  // Dialog & Sheet states
+  // Home Screen Dialogs
+  var showLanguageDialog by remember { mutableStateOf(false) }
+  var showNotificationsSheet by remember { mutableStateOf(false) }
+  var showPnrDialog by remember { mutableStateOf(false) }
+  var activeOfferingDialog by remember { mutableStateOf<OfferingItem?>(null) }
+
+  // Ticket Details Dialogs & Sheets
   var showEditSheet by remember { mutableStateOf(false) }
   var showShareSheet by remember { mutableStateOf(false) }
   var showBoardingDialog by remember { mutableStateOf(false) }
@@ -65,27 +70,12 @@ fun RailOneScreen(
 
   Scaffold(
     snackbarHost = { SnackbarHost(snackbarHostState) },
-    floatingActionButton = {
-      ExtendedFloatingActionButton(
-        onClick = { showEditSheet = true },
-        icon = {
-          Icon(
-            imageVector = Icons.Outlined.Edit,
-            contentDescription = "Edit All Ticket Details",
-            tint = Color.White
-          )
-        },
-        text = {
-          Text(
-            text = "Edit Ticket",
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            color = Color.White
-          )
-        },
-        containerColor = RailBluePrimary,
-        contentColor = Color.White,
-        modifier = Modifier.testTag("floating_edit_ticket_button")
+    bottomBar = {
+      RailOneBottomNavBar(
+        currentTab = currentTab,
+        onTabSelected = { tab ->
+          currentTab = tab
+        }
       )
     },
     modifier = modifier.fillMaxSize()
@@ -96,59 +86,66 @@ fun RailOneScreen(
         .background(RailBackground)
         .padding(innerPadding)
     ) {
-      LazyColumn(
-        modifier = Modifier.fillMaxSize()
-      ) {
-        // 1. Top Header with back button, ticket title, greeting row, and Edit button
-        item {
-          RailOneHeader(
-            transactionId = ticket.transactionId,
-            passengerGreeting = ticket.passengerGreeting,
-            onBackClick = {
+      when (currentTab) {
+        RailOneNavTab.HOME -> {
+          // Official RailOne Home Screen matching user's screenshot
+          RailOneHomeScreen(
+            userName = "Roshan",
+            onNavigateToBookings = {
+              currentTab = RailOneNavTab.BOOKINGS
+            },
+            onOfferingClick = { offering ->
+              if (offering.id == "pnr_status") {
+                showPnrDialog = true
+              } else {
+                activeOfferingDialog = offering
+              }
+            },
+            onTriviaClick = { trivia ->
               scope.launch {
                 snackbarHostState.showSnackbar(
-                  message = "You are viewing your active booked journey",
+                  message = "${trivia.title}: ${trivia.snippet}",
                   duration = SnackbarDuration.Short
                 )
               }
             },
+            onLanguageClick = {
+              showLanguageDialog = true
+            },
+            onNotificationsClick = {
+              showNotificationsSheet = true
+            }
+          )
+        }
+
+        RailOneNavTab.BOOKINGS -> {
+          // The Complete Ticket inside "My Bookings"
+          MyBookingsScreen(
+            ticket = ticket,
+            onCopyPnr = { pnr ->
+              clipboardManager.setText(AnnotatedString(pnr))
+              scope.launch {
+                snackbarHostState.showSnackbar("PNR $pnr copied to clipboard")
+              }
+            },
+            onBackClick = {
+              currentTab = RailOneNavTab.HOME
+            },
             onPdfClick = {
               scope.launch {
-                snackbarHostState.showSnackbar(
-                  message = "Ticket PDF downloaded successfully (PNR: ${ticket.pnrNumber})",
-                  duration = SnackbarDuration.Short
-                )
+                snackbarHostState.showSnackbar("e-Ticket PDF downloaded (PNR: ${ticket.pnrNumber})")
               }
             },
             onEmailClick = {
               scope.launch {
-                snackbarHostState.showSnackbar(
-                  message = "e-Ticket sent to registered email address",
-                  duration = SnackbarDuration.Short
-                )
+                snackbarHostState.showSnackbar("e-Ticket sent to roshan93721p@gmail.com")
               }
             },
             onShareClick = {
               showShareSheet = true
             },
-            onEditClick = {
+            onEditTicket = {
               showEditSheet = true
-            }
-          )
-        }
-
-        // 2. Main Ticket Card matching the user's screenshot
-        item {
-          TicketCard(
-            ticket = ticket,
-            onCopyPnr = { pnr ->
-              clipboardManager.setText(AnnotatedString(pnr))
-              scope.launch {
-                snackbarHostState.showSnackbar(
-                  message = "PNR $pnr copied to clipboard",
-                  duration = SnackbarDuration.Short
-                )
-              }
             },
             onChangeBoarding = {
               showBoardingDialog = true
@@ -159,17 +156,7 @@ fun RailOneScreen(
             onRefundRules = {
               showRefundSheet = true
             },
-            onEditTicket = {
-              showEditSheet = true
-            }
-          )
-        }
-
-        // 3. Passenger Details Section
-        item {
-          PassengerSection(
-            passengers = ticket.passengers,
-            onRefreshStatus = {
+            onRefreshPassengerStatus = {
               scope.launch {
                 val currentStatus = ticket.passengers.firstOrNull()?.currentStatus ?: "CNF"
                 snackbarHostState.showSnackbar(
@@ -181,30 +168,118 @@ fun RailOneScreen(
             onBookConnectingUts = {
               showUtsDialog = true
             },
-            onEditPassenger = {
-              showEditSheet = true
-            }
-          )
-        }
-
-        // 4. Ticket Details Extras (QR code, coach position, and fare breakdown)
-        item {
-          TicketDetailsExtras(
-            ticket = ticket,
             onViewQr = {
               showQrDialog = true
             }
           )
         }
+
+        RailOneNavTab.YOU -> {
+          // Roshan's User Profile Tab
+          YouProfileScreen(
+            userName = "Roshan",
+            email = "roshan93721p@gmail.com",
+            phone = "+91 93721 84022",
+            irctcUserId = "ROSHAN_937",
+            onItemClick = { item ->
+              scope.launch {
+                snackbarHostState.showSnackbar("Selected $item")
+              }
+            }
+          )
+        }
+
+        RailOneNavTab.MENU -> {
+          // RailOne Menu & Services
+          MenuScreen(
+            onMenuItemClick = { item ->
+              scope.launch {
+                snackbarHostState.showSnackbar(item)
+              }
+            }
+          )
+        }
       }
 
-      // Dialogs and Bottom Sheets
+      // Home Screen Sheets & Dialogs
+      if (showLanguageDialog) {
+        LanguageSelectionDialog(
+          currentLang = selectedLanguage,
+          onSelectLanguage = { lang ->
+            selectedLanguage = lang
+            showLanguageDialog = false
+            scope.launch {
+              snackbarHostState.showSnackbar("Language switched to $lang")
+            }
+          },
+          onDismiss = { showLanguageDialog = false }
+        )
+      }
+
+      if (showNotificationsSheet) {
+        NotificationsBottomSheet(
+          onDismiss = { showNotificationsSheet = false },
+          onViewBooking = {
+            currentTab = RailOneNavTab.BOOKINGS
+          }
+        )
+      }
+
+      if (showPnrDialog) {
+        PnrStatusQuickDialog(
+          currentPnr = ticket.pnrNumber,
+          onCheckPnr = { pnr ->
+            showPnrDialog = false
+          },
+          onViewActiveBooking = {
+            showPnrDialog = false
+            currentTab = RailOneNavTab.BOOKINGS
+          },
+          onDismiss = { showPnrDialog = false }
+        )
+      }
+
+      val currentOffering = activeOfferingDialog
+      if (currentOffering != null) {
+        OfferingDetailDialog(
+          offering = currentOffering,
+          onDismiss = { activeOfferingDialog = null },
+          onAction = {
+            when (currentOffering.id) {
+              "order_food" -> {
+                scope.launch {
+                  snackbarHostState.showSnackbar("Opening IRCTC e-Catering for Train ${ticket.trainNumber}...")
+                }
+              }
+              "coach_position" -> {
+                currentTab = RailOneNavTab.BOOKINGS
+              }
+              "track_train" -> {
+                scope.launch {
+                  snackbarHostState.showSnackbar("Train ${ticket.trainNumber} (${ticket.trainName}) is running on time.")
+                }
+              }
+              "rail_madad" -> {
+                scope.launch {
+                  snackbarHostState.showSnackbar("Connecting to Rail Madad Helpline 139...")
+                }
+              }
+              else -> {
+                currentTab = RailOneNavTab.BOOKINGS
+              }
+            }
+          }
+        )
+      }
+
+      // Ticket Action Dialogs and Sheets
       if (showEditSheet) {
         EditTicketBottomSheet(
           ticket = ticket,
           onDismiss = { showEditSheet = false },
           onSave = { updatedTicket ->
             ticket = updatedTicket
+            showEditSheet = false
             scope.launch {
               snackbarHostState.showSnackbar("Ticket details updated successfully!")
             }

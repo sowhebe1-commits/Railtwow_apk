@@ -18,15 +18,22 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,6 +57,8 @@ fun RailOneHeader(
   onEditClick: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
+  var menuExpanded by remember { mutableStateOf(false) }
+
   Column(
     modifier = modifier
       .fillMaxWidth()
@@ -103,29 +112,121 @@ fun RailOneHeader(
         )
       }
 
-      // Edit Button on top right bar for quick access
-      Box(
-        modifier = Modifier
-          .clip(RoundedCornerShape(18.dp))
-          .background(Color.White.copy(alpha = 0.2f))
-          .clickable(onClick = onEditClick)
-          .padding(horizontal = 10.dp, vertical = 6.dp)
-          .testTag("header_edit_button"),
-        contentAlignment = Alignment.Center
-      ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+      // 3 dots overflow menu on top right containing Edit Ticket option
+      Box {
+        Box(
+          modifier = Modifier
+            .size(38.dp)
+            .clip(CircleShape)
+            .background(Color.White.copy(alpha = 0.15f))
+            .border(1.dp, Color.White.copy(alpha = 0.5f), CircleShape)
+            .clickable(onClick = { menuExpanded = true })
+            .testTag("ticket_overflow_menu_button"),
+          contentAlignment = Alignment.Center
+        ) {
           Icon(
-            imageVector = Icons.Outlined.Edit,
-            contentDescription = "Edit ticket",
+            imageVector = Icons.Default.MoreVert,
+            contentDescription = "More options",
             tint = Color.White,
-            modifier = Modifier.size(15.dp)
+            modifier = Modifier.size(22.dp)
           )
-          Spacer(modifier = Modifier.width(4.dp))
-          Text(
-            text = "Edit",
-            fontSize = 12.5.sp,
-            color = Color.White,
-            fontWeight = FontWeight.SemiBold
+        }
+
+        DropdownMenu(
+          expanded = menuExpanded,
+          onDismissRequest = { menuExpanded = false },
+          modifier = Modifier
+            .background(Color.White)
+            .testTag("ticket_dropdown_menu")
+        ) {
+          DropdownMenuItem(
+            text = {
+              Text(
+                text = "Edit Ticket Details",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF1E293B)
+              )
+            },
+            leadingIcon = {
+              Icon(
+                imageVector = Icons.Outlined.Edit,
+                contentDescription = null,
+                tint = RailBluePrimary,
+                modifier = Modifier.size(20.dp)
+              )
+            },
+            onClick = {
+              menuExpanded = false
+              onEditClick()
+            },
+            modifier = Modifier.testTag("menu_item_edit_ticket")
+          )
+          DropdownMenuItem(
+            text = {
+              Text(
+                text = "Download e-Ticket (PDF)",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF1E293B)
+              )
+            },
+            leadingIcon = {
+              Icon(
+                imageVector = Icons.Outlined.PictureAsPdf,
+                contentDescription = null,
+                tint = RailBluePrimary,
+                modifier = Modifier.size(20.dp)
+              )
+            },
+            onClick = {
+              menuExpanded = false
+              onPdfClick()
+            }
+          )
+          DropdownMenuItem(
+            text = {
+              Text(
+                text = "Send to Email",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF1E293B)
+              )
+            },
+            leadingIcon = {
+              Icon(
+                imageVector = Icons.Outlined.Email,
+                contentDescription = null,
+                tint = RailBluePrimary,
+                modifier = Modifier.size(20.dp)
+              )
+            },
+            onClick = {
+              menuExpanded = false
+              onEmailClick()
+            }
+          )
+          DropdownMenuItem(
+            text = {
+              Text(
+                text = "Share Journey",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF1E293B)
+              )
+            },
+            leadingIcon = {
+              Icon(
+                imageVector = Icons.Outlined.Share,
+                contentDescription = null,
+                tint = RailBluePrimary,
+                modifier = Modifier.size(20.dp)
+              )
+            },
+            onClick = {
+              menuExpanded = false
+              onShareClick()
+            }
           )
         }
       }

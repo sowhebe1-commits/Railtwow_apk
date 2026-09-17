@@ -61,7 +61,7 @@ fun PassengerSection(
       .fillMaxWidth()
       .padding(horizontal = 14.dp, vertical = 6.dp)
   ) {
-    // Section Header: Passenger Details + Edit + Refresh
+    // Section Header: Passenger Details + Refresh
     Row(
       modifier = Modifier
         .fillMaxWidth()
@@ -76,59 +76,28 @@ fun PassengerSection(
         color = Color(0xFF0F172A)
       )
 
-      Row(verticalAlignment = Alignment.CenterVertically) {
-        // Edit Passenger button
-        Box(
-          modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFEFF6FF))
-            .clickable(onClick = onEditPassenger)
-            .padding(horizontal = 9.dp, vertical = 5.dp)
-            .testTag("edit_passenger_pill"),
-          contentAlignment = Alignment.Center
-        ) {
-          Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-              imageVector = Icons.Outlined.Edit,
-              contentDescription = "Edit passenger",
-              tint = RailBluePrimary,
-              modifier = Modifier.size(14.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-              text = "Edit",
-              fontSize = 12.sp,
-              color = RailBluePrimary,
-              fontWeight = FontWeight.SemiBold
+      IconButton(
+        onClick = {
+          scope.launch {
+            rotation.animateTo(
+              targetValue = rotation.value + 360f,
+              animationSpec = tween(durationMillis = 600)
             )
           }
-        }
-
-        Spacer(modifier = Modifier.width(6.dp))
-
-        IconButton(
-          onClick = {
-            scope.launch {
-              rotation.animateTo(
-                targetValue = rotation.value + 360f,
-                animationSpec = tween(durationMillis = 600)
-              )
-            }
-            onRefreshStatus()
-          },
+          onRefreshStatus()
+        },
+        modifier = Modifier
+          .size(36.dp)
+          .testTag("refresh_status_button")
+      ) {
+        Icon(
+          imageVector = Icons.Outlined.Refresh,
+          contentDescription = "Refresh Passenger Status",
+          tint = Color(0xFF64748B),
           modifier = Modifier
-            .size(36.dp)
-            .testTag("refresh_status_button")
-        ) {
-          Icon(
-            imageVector = Icons.Outlined.Refresh,
-            contentDescription = "Refresh Passenger Status",
-            tint = Color(0xFF64748B),
-            modifier = Modifier
-              .size(22.dp)
-              .rotate(rotation.value)
-          )
-        }
+            .size(22.dp)
+            .rotate(rotation.value)
+        )
       }
     }
 
