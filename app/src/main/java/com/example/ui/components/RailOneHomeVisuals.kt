@@ -117,10 +117,10 @@ fun RailOneHomeTopBar(
       horizontalArrangement = Arrangement.Center
     ) {
       Image(
-        painter = painterResource(id = R.drawable.ic_railone_logo),
+        painter = painterResource(id = R.drawable.ic_railone_logo_full),
         contentDescription = "RailOne Logo",
         modifier = Modifier
-          .size(34.dp)
+          .size(36.dp)
           .clip(RoundedCornerShape(9.dp))
       )
       Spacer(modifier = Modifier.width(8.dp))

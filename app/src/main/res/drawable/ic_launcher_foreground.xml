@@ -1,48 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-
-    <group
-        android:translateX="1"
-        android:translateY="0">
-
-        <!-- Top speed streak line trailing behind the train -->
-        <path
-            android:fillColor="#00000000"
-            android:strokeColor="#FFFFFF"
-            android:strokeWidth="3.6"
-            android:strokeLineCap="round"
-            android:strokeLineJoin="round"
-            android:pathData="M 16,47.5 L 43,43" />
-
-        <!-- Main Aerodynamic Train Shell: Roof crest, rounded bullet nose, and return -->
-        <path
-            android:fillColor="#00000000"
-            android:strokeColor="#FFFFFF"
-            android:strokeWidth="4.2"
-            android:strokeLineCap="round"
-            android:strokeLineJoin="round"
-            android:pathData="M 21,46 C 36,42.5 53,37 67,34 C 76,32 84,35 89,44 C 93,52 93,62 88,70 C 84,75 77,77 71,76 C 65,74 60,69 54,67 L 22,66.5" />
-
-        <!-- Middle speed streak line -->
-        <path
-            android:fillColor="#00000000"
-            android:strokeColor="#FFFFFF"
-            android:strokeWidth="3.6"
-            android:strokeLineCap="round"
-            android:strokeLineJoin="round"
-            android:pathData="M 20,56.5 L 56,57.5" />
-
-        <!-- Windshield cockpit curve / inner aerodynamic swoop -->
-        <path
-            android:fillColor="#00000000"
-            android:strokeColor="#FFFFFF"
-            android:strokeWidth="3.8"
-            android:strokeLineCap="round"
-            android:strokeLineJoin="round"
-            android:pathData="M 54,42.5 C 62,50 69,57 71,65 C 72,69 70,72 67,73" />
-    </group>
-</vector>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="66dp"
+        android:height="66dp"
+        android:drawable="@drawable/ic_railone_train_fg"
+        android:gravity="center" />
+</layer-list>

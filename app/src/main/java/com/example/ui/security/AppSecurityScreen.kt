@@ -183,17 +183,17 @@ fun AppSecurityScreen(
         // Inner ring with official logo
         Box(
           modifier = Modifier
-            .size(92.dp)
+            .size(96.dp)
             .clip(RoundedCornerShape(26.dp))
             .background(Color(0xFF0066FF))
             .border(2.5.dp, Color(0xFF60A5FA), RoundedCornerShape(26.dp)),
           contentAlignment = Alignment.Center
         ) {
           Image(
-            painter = painterResource(id = R.drawable.ic_railone_logo),
+            painter = painterResource(id = R.drawable.ic_railone_logo_full),
             contentDescription = "RailOne Official Logo",
             modifier = Modifier
-              .size(80.dp)
+              .size(90.dp)
               .clip(RoundedCornerShape(22.dp))
           )
         }

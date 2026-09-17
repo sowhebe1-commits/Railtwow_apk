@@ -249,14 +249,13 @@ fun UtsTicketCard(
             modifier = Modifier
               .weight(1f)
               .clickable(onClick = {
-                isExpanded = !isExpanded
                 onViewDetails()
               })
               .testTag("btn_view_details"),
             contentAlignment = Alignment.Center
           ) {
             Text(
-              text = if (isExpanded) "Hide Details" else "View Details",
+              text = "View Details",
               fontSize = 16.sp,
               fontWeight = FontWeight.Bold,
               color = ActionBlue

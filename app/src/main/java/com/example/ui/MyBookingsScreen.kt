@@ -98,9 +98,19 @@ fun MyBookingsScreen(
 
   var menuExpanded by remember { mutableStateOf(false) }
   var showFullApExpressCard by remember { mutableStateOf(false) }
+  var showingUtsBookingDetails by remember { mutableStateOf(false) }
 
   val scope = rememberCoroutineScope()
   val rotation = remember { Animatable(0f) }
+
+  if (showingUtsBookingDetails) {
+    UtsBookingDetailsScreen(
+      ticket = ticket,
+      onBackClick = { showingUtsBookingDetails = false },
+      modifier = modifier
+    )
+    return
+  }
 
   Box(
     modifier = modifier
@@ -192,6 +202,30 @@ fun MyBookingsScreen(
                   .background(Color.White)
                   .testTag("bookings_dropdown_menu")
               ) {
+                DropdownMenuItem(
+                  text = {
+                    Text(
+                      text = "View Booking Details (UTS)",
+                      fontSize = 14.sp,
+                      fontWeight = FontWeight.Bold,
+                      color = MyBookingsTopBlue
+                    )
+                  },
+                  leadingIcon = {
+                    Icon(
+                      imageVector = Icons.Outlined.ConfirmationNumber,
+                      contentDescription = null,
+                      tint = MyBookingsTopBlue,
+                      modifier = Modifier.size(20.dp)
+                    )
+                  },
+                  onClick = {
+                    menuExpanded = false
+                    showingUtsBookingDetails = true
+                  },
+                  modifier = Modifier.testTag("menu_item_view_uts_details")
+                )
+
                 DropdownMenuItem(
                   text = {
                     Text(
@@ -402,7 +436,9 @@ fun MyBookingsScreen(
               UtsTicketCard(
                 ticket = ticket,
                 onBookAgain = onReturnJourney,
-                onViewDetails = {},
+                onViewDetails = {
+                  showingUtsBookingDetails = true
+                },
                 onViewQr = onViewQr
               )
 
