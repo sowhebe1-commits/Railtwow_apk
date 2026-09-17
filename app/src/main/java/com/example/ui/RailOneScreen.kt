@@ -40,6 +40,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RailOneScreen(
+  onLockApp: () -> Unit = {},
   modifier: Modifier = Modifier,
 ) {
   // Navigation State
@@ -172,7 +173,8 @@ fun RailOneScreen(
             },
             onViewQr = {
               showQrDialog = true
-            }
+            },
+            onLockApp = onLockApp
           )
         }
 

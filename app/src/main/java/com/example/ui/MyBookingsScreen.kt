@@ -26,6 +26,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.ConfirmationNumber
 import androidx.compose.material.icons.outlined.Edit
@@ -89,6 +90,7 @@ fun MyBookingsScreen(
   onRefreshPassengerStatus: () -> Unit,
   onBookConnectingUts: () -> Unit,
   onViewQr: () -> Unit,
+  onLockApp: () -> Unit = {},
   modifier: Modifier = Modifier,
 ) {
   var selectedSubTab by remember { mutableIntStateOf(0) }
@@ -304,6 +306,30 @@ fun MyBookingsScreen(
                     menuExpanded = false
                     onShareClick()
                   }
+                )
+
+                DropdownMenuItem(
+                  text = {
+                    Text(
+                      text = "Lock App (Phone Security)",
+                      fontSize = 14.sp,
+                      fontWeight = FontWeight.SemiBold,
+                      color = Color(0xFFB91C1C)
+                    )
+                  },
+                  leadingIcon = {
+                    Icon(
+                      imageVector = Icons.Default.Lock,
+                      contentDescription = null,
+                      tint = Color(0xFFDC2626),
+                      modifier = Modifier.size(20.dp)
+                    )
+                  },
+                  onClick = {
+                    menuExpanded = false
+                    onLockApp()
+                  },
+                  modifier = Modifier.testTag("menu_item_lock_app")
                 )
               }
             }
