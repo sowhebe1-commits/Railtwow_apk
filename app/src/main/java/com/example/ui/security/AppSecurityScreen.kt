@@ -16,6 +16,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -66,11 +67,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 
 @Composable
 fun AppSecurityScreen(
@@ -177,20 +180,21 @@ fun AppSecurityScreen(
             .clip(CircleShape)
             .background(Color(0xFF0D6EFD).copy(alpha = 0.15f))
         )
-        // Inner ring
+        // Inner ring with official logo
         Box(
           modifier = Modifier
-            .size(88.dp)
-            .clip(CircleShape)
-            .background(Color(0xFF0D6EFD).copy(alpha = 0.35f))
-            .border(2.dp, Color(0xFF60A5FA), CircleShape),
+            .size(92.dp)
+            .clip(RoundedCornerShape(26.dp))
+            .background(Color(0xFF0066FF))
+            .border(2.5.dp, Color(0xFF60A5FA), RoundedCornerShape(26.dp)),
           contentAlignment = Alignment.Center
         ) {
-          Icon(
-            imageVector = Icons.Filled.Lock,
-            contentDescription = "Official Device Security Lock",
-            tint = Color.White,
-            modifier = Modifier.size(44.dp)
+          Image(
+            painter = painterResource(id = R.drawable.ic_railone_logo),
+            contentDescription = "RailOne Official Logo",
+            modifier = Modifier
+              .size(80.dp)
+              .clip(RoundedCornerShape(22.dp))
           )
         }
       }

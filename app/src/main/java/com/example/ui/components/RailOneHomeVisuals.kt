@@ -1,6 +1,7 @@
 package com.example.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -51,11 +52,13 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 
 // Brand Colors from Screenshot
 val RailOneDarkBlue = Color(0xFF002244)
@@ -108,11 +111,19 @@ fun RailOneHomeTopBar(
       }
     }
 
-    // 2. RailOne Brand Logo (Bold modern typography matching screenshot)
+    // 2. RailOne Brand Logo with Official App Icon
     Row(
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.Center
     ) {
+      Image(
+        painter = painterResource(id = R.drawable.ic_railone_logo),
+        contentDescription = "RailOne Logo",
+        modifier = Modifier
+          .size(34.dp)
+          .clip(RoundedCornerShape(9.dp))
+      )
+      Spacer(modifier = Modifier.width(8.dp))
       Text(
         text = "Rail",
         fontSize = 28.sp,
