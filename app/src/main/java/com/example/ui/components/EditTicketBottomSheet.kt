@@ -71,6 +71,12 @@ fun EditTicketBottomSheet(
   var transactionId by remember { mutableStateOf(ticket.transactionId) }
   var passengerGreeting by remember { mutableStateOf(ticket.passengerGreeting) }
 
+  // UTS & Category
+  var utsNumber by remember { mutableStateOf(ticket.utsNumber) }
+  var ticketCategory by remember { mutableStateOf(ticket.ticketCategory) }
+  var ticketType by remember { mutableStateOf(ticket.ticketType) }
+  var distanceKm by remember { mutableStateOf(ticket.distanceKm) }
+
   // Train & PNR
   var trainNumber by remember { mutableStateOf(ticket.trainNumber) }
   var trainName by remember { mutableStateOf(ticket.trainName) }
@@ -155,6 +161,40 @@ fun EditTicketBottomSheet(
       Spacer(modifier = Modifier.height(14.dp))
       HorizontalDivider(color = RailCardBorder)
       Spacer(modifier = Modifier.height(14.dp))
+
+      // Section 0: UTS & Ticket Category
+      SectionLabel(icon = Icons.Outlined.ConfirmationNumber, title = "UTS & Ticket Category")
+      Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        EditField(
+          label = "UTS Number",
+          value = utsNumber,
+          onValueChange = { utsNumber = it },
+          modifier = Modifier.weight(1.3f)
+        )
+        EditField(
+          label = "Category (e.g. Unreserved)",
+          value = ticketCategory,
+          onValueChange = { ticketCategory = it },
+          modifier = Modifier.weight(1.3f)
+        )
+      }
+      Spacer(modifier = Modifier.height(8.dp))
+      Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        EditField(
+          label = "Ticket Type (e.g. MONTHLY)",
+          value = ticketType,
+          onValueChange = { ticketType = it },
+          modifier = Modifier.weight(1.3f)
+        )
+        EditField(
+          label = "Distance (e.g. 14 km)",
+          value = distanceKm,
+          onValueChange = { distanceKm = it },
+          modifier = Modifier.weight(1f)
+        )
+      }
+
+      Spacer(modifier = Modifier.height(16.dp))
 
       // Section 1: Train & PNR Details
       SectionLabel(icon = Icons.Outlined.DirectionsRailway, title = "Train & PNR Details")
@@ -403,6 +443,10 @@ fun EditTicketBottomSheet(
             val updatedTicket = ticket.copy(
               transactionId = transactionId,
               passengerGreeting = passengerGreeting,
+              utsNumber = utsNumber,
+              ticketCategory = ticketCategory,
+              ticketType = ticketType,
+              distanceKm = distanceKm,
               trainNumber = trainNumber,
               trainName = trainName,
               pnrNumber = pnrNumber,

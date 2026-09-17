@@ -45,8 +45,8 @@ fun RailOneScreen(
   // Navigation State
   var currentTab by remember { mutableStateOf(RailOneNavTab.HOME) }
 
-  // Ticket State (Roshan / D VARDHAN - AP Express)
-  var ticket by remember { mutableStateOf(SampleTickets.apExpress) }
+  // Ticket State (UTS Monthly Ticket matching user screenshot)
+  var ticket by remember { mutableStateOf(SampleTickets.utsMonthly) }
   var selectedLanguage by remember { mutableStateOf("English") }
 
   val snackbarHostState = remember { SnackbarHostState() }
@@ -71,12 +71,14 @@ fun RailOneScreen(
   Scaffold(
     snackbarHost = { SnackbarHost(snackbarHostState) },
     bottomBar = {
-      RailOneBottomNavBar(
-        currentTab = currentTab,
-        onTabSelected = { tab ->
-          currentTab = tab
-        }
-      )
+      if (currentTab != RailOneNavTab.BOOKINGS) {
+        RailOneBottomNavBar(
+          currentTab = currentTab,
+          onTabSelected = { tab ->
+            currentTab = tab
+          }
+        )
+      }
     },
     modifier = modifier.fillMaxSize()
   ) { innerPadding ->

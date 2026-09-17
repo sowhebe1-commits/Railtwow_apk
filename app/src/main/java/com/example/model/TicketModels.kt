@@ -36,6 +36,10 @@ data class TicketInfo(
   val trainNumber: String,
   val trainName: String,
   val pnrNumber: String,
+  val utsNumber: String = "X0F7EE90D1",
+  val ticketCategory: String = "Unreserved", // "Unreserved" or "Reserved"
+  val ticketType: String = "MONTHLY", // "MONTHLY", "SEASON", "JOURNEY", "TATKAL"
+  val distanceKm: String = "14 km",
   val departureTime: String,
   val departureDate: String,
   val fromStation: String,
@@ -60,6 +64,65 @@ data class TicketInfo(
 )
 
 object SampleTickets {
+  val utsMonthly = TicketInfo(
+    transactionId = "UTS2026070190D1",
+    passengerGreeting = "ROSHAN",
+    trainNumber = "SUB-LOCAL",
+    trainName = "HARBOUR LINE SUBURBAN",
+    pnrNumber = "X0F7EE90D1",
+    utsNumber = "X0F7EE90D1",
+    ticketCategory = "Unreserved",
+    ticketType = "MONTHLY",
+    distanceKm = "14 km",
+    departureTime = "ALL SUBURBAN TRAINS",
+    departureDate = "Wed, 1 Jul 26",
+    fromStation = "MANKHURD",
+    fromCode = "MNKD",
+    fromPlatform = "PF 1/2",
+    duration = "22 mins",
+    arrivalTime = "VALID TILL 31 JUL 26",
+    arrivalDate = "Fri, 31 Jul 26",
+    toStation = "NERUL",
+    toCode = "NEU",
+    toPlatform = "PF 1/2",
+    bookingMeta = "1 Adult | Second Class (II) | MONTHLY SEASON PASS",
+    bookedOn = "Wed, 1 Jul 26",
+    travelClass = "II (Second Class)",
+    quota = "GENERAL SUBURBAN",
+    currentBoardingStation = "MANKHURD",
+    currentBoardingCode = "MNKD",
+    liveStatus = "Active & Valid till 31 Jul 2026",
+    passengers = listOf(
+      PassengerInfo(
+        id = "p1",
+        name = "Roshan",
+        gender = "Male",
+        age = 24,
+        bookingStatus = "UTS-VALID",
+        currentStatus = "MONTHLY PASS CONFIRMED",
+        coach = "GEN",
+        berthNumber = 0,
+        berthType = "Unreserved Seat"
+      )
+    ),
+    fare = FareBreakdown(
+      baseFare = 150.0,
+      tatkalCharge = 0.0,
+      superfastCharge = 0.0,
+      cateringCharge = 0.0,
+      irctcConvenienceFee = 0.0,
+      totalAmount = 150.0,
+      paymentMethod = "R-Wallet (UTS App)"
+    ),
+    intermediateStations = listOf(
+      StationStop("MNKD", "Mankhurd", "00:00", 0),
+      StationStop("VSH", "Vashi", "00:10", 7),
+      StationStop("SNCR", "Sanpada", "00:14", 9),
+      StationStop("JNJ", "Juinagar", "00:17", 11),
+      StationStop("NEU", "Nerul", "00:22", 14, isSelectableBoarding = false)
+    )
+  )
+
   val apExpress = TicketInfo(
     transactionId = "100005915012767",
     passengerGreeting = "LOKANADHAM DUDDI",
