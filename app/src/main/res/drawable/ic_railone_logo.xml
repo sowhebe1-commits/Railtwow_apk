@@ -5,49 +5,53 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Blue Background with rounded squircle / circle compatibility -->
+    <!-- Electric Blue Background with squircle compatibility -->
     <path
         android:pathData="M0,0h108v108h-108z"
         android:fillColor="#0066FF" />
 
+    <!-- Centered Logo Group scaled to 108x108 safe zone -->
     <group
-        android:translateX="1"
-        android:translateY="0">
+        android:translateX="13.5"
+        android:translateY="14.5"
+        android:scaleX="0.094"
+        android:scaleY="0.094">
 
-        <!-- Top speed streak line -->
+        <!-- 1. Outer Aerodynamic Silhouette (Roof dome, rounded nose, skirt & speed lines) -->
         <path
             android:fillColor="#00000000"
             android:strokeColor="#FFFFFF"
-            android:strokeWidth="3.6"
+            android:strokeWidth="38"
             android:strokeLineCap="round"
             android:strokeLineJoin="round"
-            android:pathData="M 16,47.5 L 43,43" />
+            android:pathData="M 65,490 C 250,462 460,430 625,422 C 750,440 850,510 905,600 C 925,650 920,705 880,750 C 840,785 750,806 675,806 C 630,792 590,795 540,770 C 420,770 260,770 105,770" />
 
-        <!-- Main Aerodynamic Train Body -->
+        <!-- 2. Windshield Cockpit Slash -->
         <path
             android:fillColor="#00000000"
             android:strokeColor="#FFFFFF"
-            android:strokeWidth="4.2"
+            android:strokeWidth="35"
             android:strokeLineCap="round"
             android:strokeLineJoin="round"
-            android:pathData="M 21,46 C 36,42.5 53,37 67,34 C 76,32 84,35 89,44 C 93,52 93,62 88,70 C 84,75 77,77 71,76 C 65,74 60,69 54,67 L 22,66.5" />
+            android:pathData="M 520,468 C 595,520 672,600 692,675 C 695,695 685,715 665,722" />
 
-        <!-- Middle speed streak line -->
+        <!-- 3. Inner Upper Speed Streak -->
         <path
             android:fillColor="#00000000"
             android:strokeColor="#FFFFFF"
-            android:strokeWidth="3.6"
+            android:strokeWidth="30"
             android:strokeLineCap="round"
             android:strokeLineJoin="round"
-            android:pathData="M 20,56.5 L 56,57.5" />
+            android:pathData="M 75,510 C 220,488 350,470 450,465" />
 
-        <!-- Windshield cockpit curve -->
+        <!-- 4. Inner Lower Speed Streak -->
         <path
             android:fillColor="#00000000"
             android:strokeColor="#FFFFFF"
-            android:strokeWidth="3.8"
+            android:strokeWidth="30"
             android:strokeLineCap="round"
             android:strokeLineJoin="round"
-            android:pathData="M 54,42.5 C 62,50 69,57 71,65 C 72,69 70,72 67,73" />
+            android:pathData="M 98,736 C 240,736 400,736 520,736" />
     </group>
 </vector>
+
