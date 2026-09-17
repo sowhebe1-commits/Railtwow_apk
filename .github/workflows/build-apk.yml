@@ -101,19 +101,10 @@ jobs:
         continue-on-error: true
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v1.0.{0}', github.run_number) }}
-          name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('RailOne Build #{0}', github.run_number) }}
-          body: |
-            ### 🚆 RailOne Android App - Ready for Download
-            
-            - **Commit**: `${{ github.sha }}`
-            - **Branch/Ref**: `${{ github.ref_name }}`
-            - **Build**: #${{ github.run_number }}
-            
-            #### 📥 Direct Download:
-            Download the `RailOne-debug.apk` file below directly onto your Android device to install and test.
-          files: |
-            release_apk/RailOne-debug.apk
+          tag_name: v1.0.${{ github.run_number }}
+          name: "RailOne Build #${{ github.run_number }}"
+          body: "RailOne Android App - Download RailOne-debug.apk below"
+          files: release_apk/RailOne-debug.apk
           draft: false
           prerelease: false
         env:
