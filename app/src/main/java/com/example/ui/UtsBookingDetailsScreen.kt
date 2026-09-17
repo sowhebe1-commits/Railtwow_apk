@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AlertDialog
@@ -32,6 +33,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -87,10 +90,13 @@ fun UtsBookingDetailsScreen(
   var validTillDate by remember { mutableStateOf("09/07/2025 23:01") }
   var fareAmount by remember { mutableStateOf("₹20.00") }
   var distanceText by remember { mutableStateOf("—17 km—") }
+  var originStation by remember { mutableStateOf(ticket.fromStation.ifBlank { "MANKHURD" }) }
+  var destStation by remember { mutableStateOf(ticket.toStation.ifBlank { "NERUL" }) }
 
   // 5:00 countdown timer
   var secondsRemaining by remember { mutableIntStateOf(300) } // 5 mins = 300 seconds
   var showEditDialog by remember { mutableStateOf(false) }
+  var menuExpanded by remember { mutableStateOf(false) }
 
   LaunchedEffect(Unit) {
     while (true) {
@@ -114,6 +120,12 @@ fun UtsBookingDetailsScreen(
     var editTicketId by remember { mutableStateOf(ticketId) }
     var editFare by remember { mutableStateOf(fareAmount) }
     var editBookingCode by remember { mutableStateOf(bookingCode) }
+    var editFrom by remember { mutableStateOf(originStation) }
+    var editTo by remember { mutableStateOf(destStation) }
+    var editDistance by remember { mutableStateOf(distanceText) }
+    var editBookingDateTime by remember { mutableStateOf(bookingDateTime) }
+    var editBookedOnDate by remember { mutableStateOf(bookedOnDate) }
+    var editValidTillDate by remember { mutableStateOf(validTillDate) }
 
     AlertDialog(
       onDismissRequest = { showEditDialog = false },
@@ -141,6 +153,32 @@ fun UtsBookingDetailsScreen(
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
           )
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+          ) {
+            OutlinedTextField(
+              value = editFrom,
+              onValueChange = { editFrom = it },
+              label = { Text("From") },
+              singleLine = true,
+              modifier = Modifier.weight(1f)
+            )
+            OutlinedTextField(
+              value = editTo,
+              onValueChange = { editTo = it },
+              label = { Text("To") },
+              singleLine = true,
+              modifier = Modifier.weight(1f)
+            )
+          }
+          OutlinedTextField(
+            value = editDistance,
+            onValueChange = { editDistance = it },
+            label = { Text("Distance (e.g. —17 km—)") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+          )
           OutlinedTextField(
             value = editTicketId,
             onValueChange = { editTicketId = it },
@@ -162,6 +200,27 @@ fun UtsBookingDetailsScreen(
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
           )
+          OutlinedTextField(
+            value = editBookingDateTime,
+            onValueChange = { editBookingDateTime = it },
+            label = { Text("Booking Date & Time (Header)") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+          )
+          OutlinedTextField(
+            value = editBookedOnDate,
+            onValueChange = { editBookedOnDate = it },
+            label = { Text("Booked on (Ticket)") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+          )
+          OutlinedTextField(
+            value = editValidTillDate,
+            onValueChange = { editValidTillDate = it },
+            label = { Text("Valid Till") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+          )
         }
       },
       confirmButton = {
@@ -172,6 +231,12 @@ fun UtsBookingDetailsScreen(
             ticketId = editTicketId
             fareAmount = editFare
             bookingCode = editBookingCode
+            originStation = editFrom
+            destStation = editTo
+            distanceText = editDistance
+            bookingDateTime = editBookingDateTime
+            bookedOnDate = editBookedOnDate
+            validTillDate = editValidTillDate
             showEditDialog = false
           },
           colors = ButtonDefaults.buttonColors(containerColor = UtsBookingHeaderBlue)
@@ -242,30 +307,75 @@ fun UtsBookingDetailsScreen(
           )
         }
 
-        // Edit Details button
-        IconButton(
-          onClick = { showEditDialog = true },
-          modifier = Modifier.size(36.dp)
-        ) {
-          Icon(
-            imageVector = Icons.Outlined.Edit,
-            contentDescription = "Edit Details",
-            tint = Color.White.copy(alpha = 0.85f),
-            modifier = Modifier.size(20.dp)
-          )
-        }
+        // 3-dot Overflow Menu
+        Box {
+          IconButton(
+            onClick = { menuExpanded = true },
+            modifier = Modifier
+              .size(38.dp)
+              .testTag("btn_uts_details_3dot")
+          ) {
+            Icon(
+              imageVector = Icons.Default.MoreVert,
+              contentDescription = "More Options",
+              tint = Color.White,
+              modifier = Modifier.size(24.dp)
+            )
+          }
 
-        // Quick Refresh Timer button
-        IconButton(
-          onClick = { secondsRemaining = 300 },
-          modifier = Modifier.size(36.dp)
-        ) {
-          Icon(
-            imageVector = Icons.Outlined.Refresh,
-            contentDescription = "Reset Timer",
-            tint = Color.White.copy(alpha = 0.85f),
-            modifier = Modifier.size(20.dp)
-          )
+          DropdownMenu(
+            expanded = menuExpanded,
+            onDismissRequest = { menuExpanded = false },
+            modifier = Modifier.background(Color.White)
+          ) {
+            DropdownMenuItem(
+              text = {
+                Text(
+                  text = "Edit Ticket Details",
+                  fontSize = 14.5.sp,
+                  fontWeight = FontWeight.Medium,
+                  color = Color(0xFF1E293B)
+                )
+              },
+              leadingIcon = {
+                Icon(
+                  imageVector = Icons.Outlined.Edit,
+                  contentDescription = null,
+                  tint = UtsBookingHeaderBlue,
+                  modifier = Modifier.size(20.dp)
+                )
+              },
+              onClick = {
+                menuExpanded = false
+                showEditDialog = true
+              },
+              modifier = Modifier.testTag("menu_item_edit_ticket_3dot")
+            )
+
+            DropdownMenuItem(
+              text = {
+                Text(
+                  text = "Reset Timer (05:00)",
+                  fontSize = 14.5.sp,
+                  fontWeight = FontWeight.Medium,
+                  color = Color(0xFF1E293B)
+                )
+              },
+              leadingIcon = {
+                Icon(
+                  imageVector = Icons.Outlined.Refresh,
+                  contentDescription = null,
+                  tint = UtsBookingHeaderBlue,
+                  modifier = Modifier.size(20.dp)
+                )
+              },
+              onClick = {
+                menuExpanded = false
+                secondsRemaining = 300
+              },
+              modifier = Modifier.testTag("menu_item_reset_timer_3dot")
+            )
+          }
         }
       }
     }
@@ -540,7 +650,7 @@ fun UtsBookingDetailsScreen(
               ) {
                 // Origin Station
                 Text(
-                  text = ticket.fromStation.ifBlank { "MANKHURD" },
+                  text = originStation,
                   fontSize = 17.5.sp,
                   fontWeight = FontWeight.Black,
                   color = Color(0xFF0F172A),
@@ -559,7 +669,7 @@ fun UtsBookingDetailsScreen(
 
                 // Destination Station
                 Text(
-                  text = ticket.toStation.ifBlank { "NERUL" },
+                  text = destStation,
                   fontSize = 17.5.sp,
                   fontWeight = FontWeight.Black,
                   color = Color(0xFF0F172A),
