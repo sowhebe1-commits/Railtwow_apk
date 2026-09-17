@@ -1,0 +1,6 @@
+{
+  "name": "RailOne",
+  "description": "Indian Railways ticket details viewer and journey manager matching RailOne interface",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
