@@ -44,6 +44,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -56,11 +58,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.UtsTicketRepository
+import com.example.model.PassengerInfo
 import com.example.model.TicketInfo
 import com.example.ui.components.PassengerSection
 import com.example.ui.components.RailOneDarkBlue
@@ -93,6 +98,39 @@ fun MyBookingsScreen(
   onLockApp: () -> Unit = {},
   modifier: Modifier = Modifier,
 ) {
+  val context = LocalContext.current
+  LaunchedEffect(Unit) {
+    UtsTicketRepository.init(context)
+  }
+  val savedDetails by UtsTicketRepository.ticketDetails.collectAsState()
+
+  val effectiveTicket = remember(ticket, savedDetails) {
+    val cleanFare = savedDetails.fareAmount.replace("₹", "").trim().toDoubleOrNull() ?: ticket.fare.totalAmount
+    val cleanDistance = savedDetails.distanceText.replace("—", "").trim()
+    ticket.copy(
+      passengerGreeting = savedDetails.passengerName,
+      ticketType = savedDetails.ticketType,
+      fromStation = savedDetails.fromStation,
+      toStation = savedDetails.toStation,
+      distanceKm = if (cleanDistance.isNotEmpty()) cleanDistance else "14 km",
+      passengers = listOf(
+        ticket.passengers.firstOrNull()?.copy(name = savedDetails.passengerName)
+          ?: PassengerInfo(
+            id = "p1",
+            name = savedDetails.passengerName,
+            age = 24,
+            gender = "Male",
+            bookingStatus = "UTS-VALID",
+            currentStatus = "MONTHLY PASS CONFIRMED",
+            coach = "GEN",
+            berthNumber = 0,
+            berthType = "Unreserved Seat"
+          )
+      ),
+      fare = ticket.fare.copy(totalAmount = cleanFare)
+    )
+  }
+
   var selectedSubTab by remember { mutableIntStateOf(0) }
   val subTabs = listOf("Upcoming", "Completed", "Cancelled", "All")
 
@@ -105,7 +143,7 @@ fun MyBookingsScreen(
 
   if (showingUtsBookingDetails) {
     UtsBookingDetailsScreen(
-      ticket = ticket,
+      ticket = effectiveTicket,
       onBackClick = { showingUtsBookingDetails = false },
       modifier = modifier
     )
@@ -434,7 +472,7 @@ fun MyBookingsScreen(
             ) {
               // Exact UTS Ticket Card from Screenshot
               UtsTicketCard(
-                ticket = ticket,
+                ticket = effectiveTicket,
                 onBookAgain = onReturnJourney,
                 onViewDetails = {
                   showingUtsBookingDetails = true

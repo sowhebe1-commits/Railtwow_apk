@@ -57,12 +57,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.collectAsState
+import com.example.data.UtsSavedDetails
+import com.example.data.UtsTicketRepository
 import com.example.model.TicketInfo
 import kotlinx.coroutines.delay
 
@@ -80,18 +84,11 @@ fun UtsBookingDetailsScreen(
   onBackClick: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
-  // Mobile & Passenger info (matching screenshot, with defaults)
-  var mobileNumber by remember { mutableStateOf("7983961490") }
-  var passengerGreeting by remember { mutableStateOf(if (ticket.passengerGreeting.isNotEmpty() && ticket.passengerGreeting != "ROSHAN") ticket.passengerGreeting else "MEERA DEVI") }
-  var ticketId by remember { mutableStateOf("XH6ZE4C002") }
-  var bookingCode by remember { mutableStateOf("R25759") }
-  var bookingDateTime by remember { mutableStateOf("09 Jul 2025, 20:01") }
-  var bookedOnDate by remember { mutableStateOf("09/07/2025 20:01") }
-  var validTillDate by remember { mutableStateOf("09/07/2025 23:01") }
-  var fareAmount by remember { mutableStateOf("₹20.00") }
-  var distanceText by remember { mutableStateOf("—17 km—") }
-  var originStation by remember { mutableStateOf(ticket.fromStation.ifBlank { "MANKHURD" }) }
-  var destStation by remember { mutableStateOf(ticket.toStation.ifBlank { "NERUL" }) }
+  val context = LocalContext.current
+  LaunchedEffect(Unit) {
+    UtsTicketRepository.init(context)
+  }
+  val savedDetails by UtsTicketRepository.ticketDetails.collectAsState()
 
   // 5:00 countdown timer
   var secondsRemaining by remember { mutableIntStateOf(300) } // 5 mins = 300 seconds
@@ -115,17 +112,19 @@ fun UtsBookingDetailsScreen(
 
   // Edit Ticket Dialog
   if (showEditDialog) {
-    var editMobile by remember { mutableStateOf(mobileNumber) }
-    var editName by remember { mutableStateOf(passengerGreeting) }
-    var editTicketId by remember { mutableStateOf(ticketId) }
-    var editFare by remember { mutableStateOf(fareAmount) }
-    var editBookingCode by remember { mutableStateOf(bookingCode) }
-    var editFrom by remember { mutableStateOf(originStation) }
-    var editTo by remember { mutableStateOf(destStation) }
-    var editDistance by remember { mutableStateOf(distanceText) }
-    var editBookingDateTime by remember { mutableStateOf(bookingDateTime) }
-    var editBookedOnDate by remember { mutableStateOf(bookedOnDate) }
-    var editValidTillDate by remember { mutableStateOf(validTillDate) }
+    var editMobile by remember(savedDetails) { mutableStateOf(savedDetails.mobileNumber) }
+    var editName by remember(savedDetails) { mutableStateOf(savedDetails.passengerName) }
+    var editTicketType by remember(savedDetails) { mutableStateOf(savedDetails.ticketType) }
+    var editTicketId by remember(savedDetails) { mutableStateOf(savedDetails.ticketId) }
+    var editFare by remember(savedDetails) { mutableStateOf(savedDetails.fareAmount) }
+    var editBookingCode by remember(savedDetails) { mutableStateOf(savedDetails.bookingCode) }
+    var editFrom by remember(savedDetails) { mutableStateOf(savedDetails.fromStation) }
+    var editTo by remember(savedDetails) { mutableStateOf(savedDetails.toStation) }
+    var editDistance by remember(savedDetails) { mutableStateOf(savedDetails.distanceText) }
+    var editBookingDateTime by remember(savedDetails) { mutableStateOf(savedDetails.bookingDateTime) }
+    var editBookedOnDate by remember(savedDetails) { mutableStateOf(savedDetails.bookedOnDate) }
+    var editValidTillDate by remember(savedDetails) { mutableStateOf(savedDetails.validTillDate) }
+    var editClassType by remember(savedDetails) { mutableStateOf(savedDetails.classType) }
 
     AlertDialog(
       onDismissRequest = { showEditDialog = false },
@@ -139,10 +138,37 @@ fun UtsBookingDetailsScreen(
             .verticalScroll(rememberScrollState()),
           verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
+          // Quick Preset for Roshan
+          Button(
+            onClick = {
+              editName = "ROSHAN"
+              editMobile = "7983961490"
+              editFrom = "MANKHURD"
+              editTo = "NERUL"
+              editDistance = "—14 km—"
+              editFare = "₹150.00"
+              editTicketType = "Season Ticket (Monthly Pass)"
+              editClassType = "SECOND | ORDINARY | MONTHLY SEASON PASS"
+              editTicketId = "XH6ZE4C002"
+              editBookingCode = "R25759"
+            },
+            colors = ButtonDefaults.outlinedButtonColors(),
+            modifier = Modifier.fillMaxWidth()
+          ) {
+            Text("Load Roshan Mankhurd-Nerul (14 km) Pass", fontSize = 12.5.sp)
+          }
+
           OutlinedTextField(
             value = editName,
             onValueChange = { editName = it },
             label = { Text("Passenger Name") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+          )
+          OutlinedTextField(
+            value = editTicketType,
+            onValueChange = { editTicketType = it },
+            label = { Text("Ticket Type (e.g. Season Ticket (Monthly Pass))") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
           )
@@ -160,14 +186,14 @@ fun UtsBookingDetailsScreen(
             OutlinedTextField(
               value = editFrom,
               onValueChange = { editFrom = it },
-              label = { Text("From") },
+              label = { Text("From Station") },
               singleLine = true,
               modifier = Modifier.weight(1f)
             )
             OutlinedTextField(
               value = editTo,
               onValueChange = { editTo = it },
-              label = { Text("To") },
+              label = { Text("To Station") },
               singleLine = true,
               modifier = Modifier.weight(1f)
             )
@@ -175,7 +201,14 @@ fun UtsBookingDetailsScreen(
           OutlinedTextField(
             value = editDistance,
             onValueChange = { editDistance = it },
-            label = { Text("Distance (e.g. —17 km—)") },
+            label = { Text("Distance (e.g. —14 km—)") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+          )
+          OutlinedTextField(
+            value = editFare,
+            onValueChange = { editFare = it },
+            label = { Text("Fare Amount (e.g. ₹150.00)") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
           )
@@ -183,13 +216,6 @@ fun UtsBookingDetailsScreen(
             value = editTicketId,
             onValueChange = { editTicketId = it },
             label = { Text("Ticket Code") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-          )
-          OutlinedTextField(
-            value = editFare,
-            onValueChange = { editFare = it },
-            label = { Text("Fare Amount") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
           )
@@ -221,22 +247,38 @@ fun UtsBookingDetailsScreen(
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
           )
+          OutlinedTextField(
+            value = editClassType,
+            onValueChange = { editClassType = it },
+            label = { Text("Class Strip") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+          )
         }
       },
       confirmButton = {
         Button(
           onClick = {
-            mobileNumber = editMobile
-            passengerGreeting = editName
-            ticketId = editTicketId
-            fareAmount = editFare
-            bookingCode = editBookingCode
-            originStation = editFrom
-            destStation = editTo
-            distanceText = editDistance
-            bookingDateTime = editBookingDateTime
-            bookedOnDate = editBookedOnDate
-            validTillDate = editValidTillDate
+            val cleanName = editName.trim().ifBlank { "ROSHAN" }
+            UtsTicketRepository.saveDetails(
+              UtsSavedDetails(
+                passengerName = cleanName,
+                mobileNumber = editMobile.trim().ifBlank { "7983961490" },
+                fromStation = editFrom.trim().ifBlank { "MANKHURD" },
+                toStation = editTo.trim().ifBlank { "NERUL" },
+                distanceText = editDistance.trim().ifBlank { "—14 km—" },
+                fareAmount = editFare.trim().ifBlank { "₹150.00" },
+                ticketType = editTicketType.trim().ifBlank { "Season Ticket (Monthly Pass)" },
+                ticketId = editTicketId.trim().ifBlank { "XH6ZE4C002" },
+                bookingCode = editBookingCode.trim().ifBlank { "R25759" },
+                bookingDateTime = editBookingDateTime.trim().ifBlank { "09 Jul 2026, 20:01" },
+                bookedOnDate = editBookedOnDate.trim().ifBlank { "09/07/2026 20:01" },
+                validTillDate = editValidTillDate.trim().ifBlank { "08/08/2026 23:59" },
+                via = "-",
+                classType = editClassType.trim().ifBlank { "SECOND | ORDINARY | MONTHLY SEASON PASS" },
+                passengerCount = "1 Adult ($cleanName)"
+              )
+            )
             showEditDialog = false
           },
           colors = ButtonDefaults.buttonColors(containerColor = UtsBookingHeaderBlue)
@@ -300,7 +342,7 @@ fun UtsBookingDetailsScreen(
           )
           Spacer(modifier = Modifier.height(1.dp))
           Text(
-            text = "Mobile: $mobileNumber",
+            text = "${savedDetails.passengerName} (${savedDetails.mobileNumber})",
             fontSize = 12.5.sp,
             fontWeight = FontWeight.Normal,
             color = Color(0xFFD6E4FF)
@@ -355,6 +397,47 @@ fun UtsBookingDetailsScreen(
             DropdownMenuItem(
               text = {
                 Text(
+                  text = "Reset to Roshan Monthly Pass (14 km)",
+                  fontSize = 14.5.sp,
+                  fontWeight = FontWeight.Medium,
+                  color = Color(0xFF1E293B)
+                )
+              },
+              leadingIcon = {
+                Icon(
+                  imageVector = Icons.Outlined.Refresh,
+                  contentDescription = null,
+                  tint = UtsBookingHeaderBlue,
+                  modifier = Modifier.size(20.dp)
+                )
+              },
+              onClick = {
+                menuExpanded = false
+                UtsTicketRepository.saveDetails(
+                  UtsSavedDetails(
+                    passengerName = "ROSHAN",
+                    mobileNumber = "7983961490",
+                    fromStation = "MANKHURD",
+                    toStation = "NERUL",
+                    distanceText = "—14 km—",
+                    fareAmount = "₹150.00",
+                    ticketType = "Season Ticket (Monthly Pass)",
+                    ticketId = "XH6ZE4C002",
+                    bookingCode = "R25759",
+                    bookingDateTime = "09 Jul 2026, 20:01",
+                    bookedOnDate = "09/07/2026 20:01",
+                    validTillDate = "08/08/2026 23:59",
+                    via = "-",
+                    classType = "SECOND | ORDINARY | MONTHLY SEASON PASS",
+                    passengerCount = "1 Adult (ROSHAN)"
+                  )
+                )
+              }
+            )
+
+            DropdownMenuItem(
+              text = {
+                Text(
                   text = "Reset Timer (05:00)",
                   fontSize = 14.5.sp,
                   fontWeight = FontWeight.Medium,
@@ -387,7 +470,7 @@ fun UtsBookingDetailsScreen(
       modifier = Modifier.fillMaxWidth()
     ) {
       Text(
-        text = "Thank You $passengerGreeting, Happy Journey !",
+        text = "Thank You ${savedDetails.passengerName}, Happy Journey !",
         fontSize = 13.sp,
         fontWeight = FontWeight.SemiBold,
         color = Color(0xFF475569),
@@ -588,7 +671,7 @@ fun UtsBookingDetailsScreen(
               Spacer(modifier = Modifier.height(2.dp))
 
               Text(
-                text = bookingDateTime,
+                text = savedDetails.bookingDateTime,
                 color = UtsGoldDate,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
@@ -598,7 +681,7 @@ fun UtsBookingDetailsScreen(
               Spacer(modifier = Modifier.height(2.dp))
 
               Text(
-                text = bookingCode,
+                text = savedDetails.bookingCode,
                 color = Color(0xFF888888),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
@@ -618,21 +701,21 @@ fun UtsBookingDetailsScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 18.dp, vertical = 14.dp)
             ) {
-              // 1. Header: "Journey Ticket" and "XH6ZE4C002"
+              // 1. Header: Ticket Type (Season Ticket (Monthly Pass)) and Ticket Id
               Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
               ) {
                 Text(
-                  text = "Journey Ticket",
+                  text = savedDetails.ticketType,
                   fontSize = 15.sp,
                   fontWeight = FontWeight.Bold,
                   color = Color(0xFF1E293B)
                 )
 
                 Text(
-                  text = ticketId,
+                  text = savedDetails.ticketId,
                   fontSize = 15.sp,
                   fontWeight = FontWeight.Bold,
                   letterSpacing = 0.5.sp,
@@ -642,7 +725,7 @@ fun UtsBookingDetailsScreen(
 
               Spacer(modifier = Modifier.height(16.dp))
 
-              // 2. ROUTE LINE: MANKHURD  —17 km—  NERUL
+              // 2. ROUTE LINE: MANKHURD  —14 km—  NERUL
               Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -650,7 +733,7 @@ fun UtsBookingDetailsScreen(
               ) {
                 // Origin Station
                 Text(
-                  text = originStation,
+                  text = savedDetails.fromStation,
                   fontSize = 17.5.sp,
                   fontWeight = FontWeight.Black,
                   color = Color(0xFF0F172A),
@@ -659,7 +742,7 @@ fun UtsBookingDetailsScreen(
 
                 // Distance indicator
                 Text(
-                  text = distanceText,
+                  text = savedDetails.distanceText,
                   fontSize = 12.5.sp,
                   fontWeight = FontWeight.Medium,
                   color = Color(0xFF64748B),
@@ -669,7 +752,7 @@ fun UtsBookingDetailsScreen(
 
                 // Destination Station
                 Text(
-                  text = destStation,
+                  text = savedDetails.toStation,
                   fontSize = 17.5.sp,
                   fontWeight = FontWeight.Black,
                   color = Color(0xFF0F172A),
@@ -695,7 +778,7 @@ fun UtsBookingDetailsScreen(
                   )
                   Spacer(modifier = Modifier.height(2.dp))
                   Text(
-                    text = "-",
+                    text = savedDetails.via,
                     fontSize = 14.sp,
                     color = Color(0xFF1E293B),
                     fontWeight = FontWeight.Bold
@@ -712,7 +795,7 @@ fun UtsBookingDetailsScreen(
                   )
                   Spacer(modifier = Modifier.height(2.dp))
                   Text(
-                    text = "1 Adult, 0 Child",
+                    text = savedDetails.passengerCount,
                     fontSize = 14.sp,
                     color = Color(0xFF1E293B),
                     fontWeight = FontWeight.Bold,
@@ -738,7 +821,7 @@ fun UtsBookingDetailsScreen(
                   )
                   Spacer(modifier = Modifier.height(2.dp))
                   Text(
-                    text = bookedOnDate,
+                    text = savedDetails.bookedOnDate,
                     fontSize = 13.5.sp,
                     color = Color(0xFF1E293B),
                     fontWeight = FontWeight.Bold
@@ -755,7 +838,7 @@ fun UtsBookingDetailsScreen(
                   )
                   Spacer(modifier = Modifier.height(2.dp))
                   Text(
-                    text = validTillDate,
+                    text = savedDetails.validTillDate,
                     fontSize = 13.5.sp,
                     color = Color(0xFF1E293B),
                     fontWeight = FontWeight.Bold,
@@ -768,7 +851,7 @@ fun UtsBookingDetailsScreen(
 
               // 5. CLASS & FARE STRIP
               Text(
-                text = "SECOND | ORDINARY | JOURNEY | $fareAmount",
+                text = "${savedDetails.classType} | ${savedDetails.fareAmount}",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF1E293B),
@@ -795,9 +878,9 @@ fun UtsBookingDetailsScreen(
 
               Spacer(modifier = Modifier.height(12.dp))
 
-              // 6. TICKET DISCLAIMER / FOOTNOTE
+              // 6. TICKET DISCLAIMER / FOOTNOTE (for Season Monthly Pass)
               Text(
-                text = "*Valid for start of journey within 3 hour or until departure of the first train.",
+                text = "*Valid for travel between ${savedDetails.fromStation} and ${savedDetails.toStation} for the entire validity period. Non-transferable.",
                 fontSize = 11.5.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color(0xFF64748B),

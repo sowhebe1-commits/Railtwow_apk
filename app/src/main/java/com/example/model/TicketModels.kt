@@ -72,7 +72,7 @@ object SampleTickets {
     pnrNumber = "X0F7EE90D1",
     utsNumber = "X0F7EE90D1",
     ticketCategory = "Unreserved",
-    ticketType = "MONTHLY",
+    ticketType = "MONTHLY PASS",
     distanceKm = "14 km",
     departureTime = "ALL SUBURBAN TRAINS",
     departureDate = "Wed, 1 Jul 26",
